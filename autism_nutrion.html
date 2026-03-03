@@ -1,0 +1,1803 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AutiCare — Routine Coach</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DESIGN TOKENS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      :root {
+        --bg: #f4f1ec;
+        --surface: #ffffff;
+        --surface2: #edebe5;
+        --border: #e2ded6;
+        --text: #1a1714;
+        --text2: #6b6460;
+        --text3: #9c968f;
+
+        --teal: #2abfaa;
+        --teal-d: #1d9b89;
+        --teal-l: #d4f4ef;
+        --amber: #f59e0b;
+        --amber-l: #fef3c7;
+        --coral: #f87171;
+        --coral-l: #fee2e2;
+        --lav: #a78bfa;
+        --lav-l: #ede9fe;
+        --sage: #4ade80;
+        --sage-l: #dcfce7;
+        --blue: #60a5fa;
+        --blue-l: #dbeafe;
+
+        --r-sm: 10px;
+        --r: 16px;
+        --r-lg: 22px;
+        --r-xl: 32px;
+        --sh: 0 2px 12px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.05);
+        --sh-lg: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+        --sh-xl:
+          0 20px 60px rgba(0, 0, 0, 0.16), 0 4px 16px rgba(0, 0, 0, 0.08);
+
+        --font-h: "Nunito", sans-serif;
+        --font-b: "DM Sans", sans-serif;
+        --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: var(--font-b);
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: none;
+        background: none;
+      }
+      input,
+      select,
+      textarea {
+        font-family: inherit;
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   APP SHELL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .app {
+        max-width: 480px;
+        margin: 0 auto;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TOPBAR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .topbar {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 11px;
+        background: linear-gradient(135deg, var(--teal) 0%, var(--lav) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
+      .topbar-info {
+        flex: 1;
+      }
+      .topbar-title {
+        font-family: var(--font-h);
+        font-weight: 900;
+        font-size: 17px;
+      }
+      .topbar-sub {
+        font-size: 11px;
+        color: var(--text3);
+        margin-top: 1px;
+      }
+      .topbar-add {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--teal);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 300;
+        transition: all 0.2s var(--ease);
+        flex-shrink: 0;
+      }
+      .topbar-add:hover {
+        background: var(--teal-d);
+        transform: scale(1.05);
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BOTTOM NAV
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 480px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        display: flex;
+        z-index: 50;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .nav-btn {
+        flex: 1;
+        padding: 12px 4px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text3);
+        transition: all 0.2s var(--ease);
+        letter-spacing: 0.03em;
+      }
+      .nav-btn.active {
+        color: var(--teal);
+      }
+      .nav-icon {
+        font-size: 20px;
+        line-height: 1;
+      }
+      .nav-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--teal);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .nav-btn.active .nav-dot {
+        opacity: 1;
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CONTENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .content {
+        flex: 1;
+        padding: 20px 16px 90px;
+        overflow-y: auto;
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PAGE: TODAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .date-strip {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        box-shadow: var(--sh);
+      }
+      .date-icon {
+        font-size: 32px;
+      }
+      .date-day {
+        font-family: var(--font-h);
+        font-weight: 900;
+        font-size: 20px;
+      }
+      .date-full {
+        font-size: 12px;
+        color: var(--text3);
+        margin-top: 2px;
+      }
+      .date-stats {
+        margin-left: auto;
+        display: flex;
+        gap: 14px;
+      }
+      .dstat {
+        text-align: center;
+      }
+      .dstat-n {
+        font-family: var(--font-h);
+        font-weight: 900;
+        font-size: 20px;
+      }
+      .dstat-l {
+        font-size: 10px;
+        color: var(--text3);
+        font-weight: 600;
+      }
+
+      /* Progress bar */
+      .progress-wrap {
+        margin-bottom: 20px;
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text2);
+        margin-bottom: 6px;
+      }
+      .progress-track {
+        height: 8px;
+        background: var(--surface2);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--teal), var(--lav));
+        border-radius: 99px;
+        transition: width 0.6s var(--ease);
+      }
+
+      /* Section header */
+      .sec-hd {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .sec-title {
+        font-family: var(--font-h);
+        font-weight: 800;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .sec-count {
+        font-size: 11px;
+        background: var(--surface2);
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-weight: 700;
+        color: var(--text2);
+      }
+
+      /* Empty state */
+      .empty {
+        text-align: center;
+        padding: 48px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+      .empty-icon {
+        font-size: 48px;
+        opacity: 0.5;
+      }
+      .empty-title {
+        font-family: var(--font-h);
+        font-weight: 800;
+        font-size: 17px;
+        color: var(--text2);
+      }
+      .empty-sub {
+        font-size: 13px;
+        color: var(--text3);
+        line-height: 1.6;
+      }
+      .empty-btn {
+        margin-top: 8px;
+        padding: 11px 22px;
+        background: var(--teal);
+        color: #fff;
+        border-radius: var(--r-sm);
+        font-size: 13px;
+        font-weight: 700;
+        transition: all 0.2s var(--ease);
+      }
+      .empty-btn:hover {
+        background: var(--teal-d);
+      }
+
+      /* Task card */
+      .task-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .task-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 14px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: var(--sh);
+        transition: all 0.25s var(--ease);
+        position: relative;
+        overflow: hidden;
+      }
+      .task-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: 4px 0 0 4px;
+      }
+      .task-card.type-therapy::before {
+        background: var(--lav);
+      }
+      .task-card.type-meal::before {
+        background: var(--sage);
+      }
+      .task-card.type-medicine::before {
+        background: var(--blue);
+      }
+      .task-card.type-other::before {
+        background: var(--amber);
+      }
+
+      .task-card.status-done {
+        opacity: 0.55;
+        border-color: var(--border);
+      }
+      .task-card.status-skip {
+        opacity: 0.4;
+        border-color: var(--border);
+      }
+      .task-card.status-missed {
+        border-color: var(--coral);
+        background: var(--coral-l);
+      }
+      .task-card.status-now {
+        border-color: var(--amber);
+        background: var(--amber-l);
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+      }
+
+      .task-icon-wrap {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+      }
+      .type-therapy .task-icon-wrap {
+        background: var(--lav-l);
+      }
+      .type-meal .task-icon-wrap {
+        background: var(--sage-l);
+      }
+      .type-medicine .task-icon-wrap {
+        background: var(--blue-l);
+      }
+      .type-other .task-icon-wrap {
+        background: var(--amber-l);
+      }
+
+      .task-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .task-name {
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .task-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 3px;
+      }
+      .task-time {
+        font-size: 12px;
+        color: var(--text2);
+        font-weight: 600;
+      }
+      .task-repeat {
+        font-size: 10px;
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 20px;
+        color: var(--text3);
+        font-weight: 700;
+      }
+      .task-status-badge {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        padding: 3px 8px;
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+      .badge-done {
+        background: var(--sage-l);
+        color: #15803d;
+      }
+      .badge-skip {
+        background: var(--surface2);
+        color: var(--text3);
+      }
+      .badge-missed {
+        background: var(--coral-l);
+        color: #dc2626;
+      }
+      .badge-now {
+        background: var(--amber-l);
+        color: #92400e;
+      }
+      .badge-pending {
+        background: var(--surface2);
+        color: var(--text3);
+      }
+
+      .task-actions {
+        display: flex;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .task-btn {
+        padding: 7px 12px;
+        border-radius: var(--r-sm);
+        font-size: 12px;
+        font-weight: 700;
+        transition: all 0.2s var(--ease);
+      }
+      .task-btn.done {
+        background: var(--sage-l);
+        color: #15803d;
+      }
+      .task-btn.done:hover {
+        background: #bbf7d0;
+      }
+      .task-btn.skip {
+        background: var(--surface2);
+        color: var(--text2);
+      }
+      .task-btn.skip:hover {
+        background: var(--border);
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PAGE: ADD ROUTINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .add-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-xl);
+        padding: 24px 20px;
+        box-shadow: var(--sh);
+        margin-bottom: 16px;
+      }
+      .add-card-title {
+        font-family: var(--font-h);
+        font-weight: 900;
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      .add-card-sub {
+        font-size: 13px;
+        color: var(--text3);
+        margin-bottom: 22px;
+      }
+
+      .form-row {
+        margin-bottom: 18px;
+      }
+      .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text2);
+        margin-bottom: 7px;
+        letter-spacing: 0.03em;
+      }
+
+      /* Type chips */
+      .type-chips {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .type-chip {
+        padding: 12px 10px;
+        border: 2px solid var(--border);
+        border-radius: var(--r);
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s var(--ease);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .type-chip:hover {
+        border-color: var(--teal);
+        transform: translateY(-1px);
+      }
+      .type-chip.sel-therapy {
+        border-color: var(--lav);
+        background: var(--lav-l);
+        color: #5b21b6;
+      }
+      .type-chip.sel-meal {
+        border-color: var(--sage);
+        background: var(--sage-l);
+        color: #15803d;
+      }
+      .type-chip.sel-medicine {
+        border-color: var(--blue);
+        background: var(--blue-l);
+        color: #1d4ed8;
+      }
+      .type-chip.sel-other {
+        border-color: var(--amber);
+        background: var(--amber-l);
+        color: #92400e;
+      }
+
+      /* Input */
+      .form-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid var(--border);
+        border-radius: var(--r-sm);
+        font-size: 14px;
+        background: var(--surface2);
+        color: var(--text);
+        outline: none;
+        transition: all 0.2s var(--ease);
+      }
+      .form-input:focus {
+        border-color: var(--teal);
+        background: var(--surface);
+      }
+
+      /* Toggle */
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 16px;
+        border: 2px solid var(--border);
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        transition: all 0.2s var(--ease);
+      }
+      .toggle-row:hover {
+        border-color: var(--teal);
+      }
+      .toggle-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text2);
+      }
+      .toggle-sub {
+        font-size: 11px;
+        color: var(--text3);
+        margin-top: 2px;
+      }
+      .toggle-switch {
+        width: 46px;
+        height: 26px;
+        border-radius: 99px;
+        background: var(--border);
+        position: relative;
+        transition: all 0.25s var(--ease);
+        flex-shrink: 0;
+      }
+      .toggle-switch.on {
+        background: var(--teal);
+      }
+      .toggle-switch::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        transition: all 0.25s var(--ease);
+      }
+      .toggle-switch.on::after {
+        transform: translateX(20px);
+      }
+
+      /* Submit */
+      .submit-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, var(--teal) 0%, var(--teal-d) 100%);
+        color: white;
+        border-radius: var(--r);
+        font-size: 15px;
+        font-weight: 800;
+        font-family: var(--font-h);
+        letter-spacing: 0.02em;
+        transition: all 0.25s var(--ease);
+        box-shadow: 0 4px 14px rgba(42, 191, 170, 0.35);
+      }
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(42, 191, 170, 0.45);
+      }
+      .submit-btn:active {
+        transform: translateY(0);
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PAGE: HISTORY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .history-day {
+        margin-bottom: 20px;
+      }
+      .history-date-lbl {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text3);
+        margin-bottom: 10px;
+        padding-left: 4px;
+      }
+      .history-item {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        box-shadow: var(--sh);
+      }
+      .history-icon {
+        font-size: 20px;
+        width: 36px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .history-name {
+        font-size: 13px;
+        font-weight: 700;
+        flex: 1;
+      }
+      .history-time {
+        font-size: 11px;
+        color: var(--text3);
+      }
+      .history-badge {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 20px;
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   REMINDER POPUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 23, 20, 0.55);
+        backdrop-filter: blur(6px);
+        z-index: 200;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 16px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s var(--ease);
+      }
+      .overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .popup {
+        background: var(--surface);
+        border-radius: var(--r-xl) var(--r-xl) var(--r-lg) var(--r-lg);
+        width: 100%;
+        max-width: 480px;
+        padding: 28px 24px 24px;
+        box-shadow: var(--sh-xl);
+        transform: translateY(40px);
+        transition: transform 0.35s var(--ease);
+        position: relative;
+        overflow: hidden;
+      }
+      .overlay.open .popup {
+        transform: translateY(0);
+      }
+
+      /* pulse ring behind icon */
+      .popup-ring {
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: var(--teal-l);
+        opacity: 0.6;
+      }
+      .popup-ring2 {
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: var(--teal-l);
+        opacity: 0.3;
+      }
+
+      .popup-header {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 20px;
+      }
+      .popup-emoji {
+        font-size: 44px;
+        margin-bottom: 10px;
+        display: block;
+      }
+      .popup-label {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--teal);
+        margin-bottom: 6px;
+      }
+      .popup-title {
+        font-family: var(--font-h);
+        font-weight: 900;
+        font-size: 24px;
+        line-height: 1.2;
+        margin-bottom: 6px;
+      }
+      .popup-sub {
+        font-size: 14px;
+        color: var(--text2);
+        line-height: 1.5;
+      }
+
+      .popup-timer {
+        background: var(--surface2);
+        border-radius: var(--r);
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .popup-timer-icon {
+        font-size: 18px;
+      }
+      .popup-timer-text {
+        font-size: 13px;
+        color: var(--text2);
+      }
+      .popup-timer-count {
+        font-family: var(--font-h);
+        font-weight: 900;
+        font-size: 16px;
+        margin-left: auto;
+        color: var(--teal);
+      }
+
+      .popup-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .popup-btn {
+        width: 100%;
+        padding: 15px;
+        border-radius: var(--r);
+        font-size: 15px;
+        font-weight: 800;
+        font-family: var(--font-h);
+        transition: all 0.2s var(--ease);
+      }
+      .popup-btn.primary {
+        background: linear-gradient(135deg, var(--teal), var(--teal-d));
+        color: white;
+        box-shadow: 0 4px 14px rgba(42, 191, 170, 0.35);
+      }
+      .popup-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(42, 191, 170, 0.4);
+      }
+      .popup-btn.secondary {
+        background: var(--amber-l);
+        color: #92400e;
+      }
+      .popup-btn.secondary:hover {
+        background: #fde68a;
+      }
+      .popup-btn.ghost {
+        background: var(--surface2);
+        color: var(--text2);
+      }
+      .popup-btn.ghost:hover {
+        background: var(--border);
+      }
+
+      /* snooze countdown bar */
+      .snooze-bar-wrap {
+        height: 4px;
+        background: var(--surface2);
+        border-radius: 99px;
+        margin-top: 12px;
+        overflow: hidden;
+      }
+      .snooze-bar {
+        height: 100%;
+        border-radius: 99px;
+        background: var(--amber);
+        width: 100%;
+        transition: width linear;
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TOAST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      .toast {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: var(--text);
+        color: white;
+        padding: 11px 18px;
+        border-radius: var(--r-sm);
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        box-shadow: var(--sh-lg);
+        z-index: 300;
+        opacity: 0;
+        transition: all 0.3s var(--ease);
+        pointer-events: none;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ANIMATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-up {
+        animation: fadeUp 0.4s var(--ease) both;
+      }
+      .delay-1 {
+        animation-delay: 0.05s;
+      }
+      .delay-2 {
+        animation-delay: 0.1s;
+      }
+      .delay-3 {
+        animation-delay: 0.15s;
+      }
+      .delay-4 {
+        animation-delay: 0.2s;
+      }
+      .delay-5 {
+        animation-delay: 0.25s;
+      }
+
+      @keyframes ripple {
+        0% {
+          transform: scale(1);
+          opacity: 0.6;
+        }
+        100% {
+          transform: scale(1.8);
+          opacity: 0;
+        }
+      }
+      .ring-pulse {
+        animation: ripple 2s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ━━ TOPBAR ━━ -->
+      <div class="topbar">
+        <div class="logo">🌿</div>
+        <div class="topbar-info">
+          <div class="topbar-title">AutiCare</div>
+          <div class="topbar-sub" id="topbar-sub">Routine Coach</div>
+        </div>
+        <button
+          class="topbar-add"
+          onclick="goPage('add')"
+          title="Add new routine"
+        >
+          ＋
+        </button>
+      </div>
+
+      <!-- ━━ CONTENT ━━ -->
+      <div class="content" id="content"></div>
+
+      <!-- ━━ BOTTOM NAV ━━ -->
+      <nav class="bottom-nav">
+        <button class="nav-btn active" id="nav-today" onclick="goPage('today')">
+          <span class="nav-icon">📋</span>
+          <span>Today</span>
+          <div class="nav-dot"></div>
+        </button>
+        <button class="nav-btn" id="nav-add" onclick="goPage('add')">
+          <span class="nav-icon">➕</span>
+          <span>Add</span>
+          <div class="nav-dot"></div>
+        </button>
+        <button class="nav-btn" id="nav-history" onclick="goPage('history')">
+          <span class="nav-icon">📊</span>
+          <span>History</span>
+          <div class="nav-dot"></div>
+        </button>
+      </nav>
+    </div>
+    <!-- /app -->
+
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     REMINDER POPUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+    <div class="overlay" id="popup-overlay">
+      <div class="popup">
+        <div class="popup-ring2 ring-pulse"></div>
+        <div class="popup-ring"></div>
+
+        <div class="popup-header">
+          <span class="popup-emoji" id="pop-emoji">💊</span>
+          <div class="popup-label">⏰ Reminder</div>
+          <div class="popup-title" id="pop-title">Time for Medicine</div>
+          <div class="popup-sub" id="pop-sub">
+            It's time to take your scheduled medication. Please complete this
+            now.
+          </div>
+        </div>
+
+        <div class="popup-timer" id="pop-timer">
+          <span class="popup-timer-icon">⏱️</span>
+          <span class="popup-timer-text">Auto-marks missed in</span>
+          <span class="popup-timer-count" id="pop-countdown">30:00</span>
+        </div>
+
+        <div class="popup-actions">
+          <button class="popup-btn primary" onclick="popupDone()">
+            ✅ Done — Mark Complete
+          </button>
+          <button
+            class="popup-btn secondary"
+            id="snooze-btn"
+            onclick="popupSnooze()"
+          >
+            ⏰ Remind me in 10 minutes
+          </button>
+          <button class="popup-btn ghost" onclick="popupSkip()">
+            Skip this time
+          </button>
+        </div>
+
+        <div class="snooze-bar-wrap" id="snooze-bar-wrap" style="display: none">
+          <div class="snooze-bar" id="snooze-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ━━ TOAST ━━ -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+      /* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+      let tasks = JSON.parse(localStorage.getItem("ac_tasks") || "[]");
+      let history = JSON.parse(localStorage.getItem("ac_history") || "[]");
+      let currentPage = "today";
+
+      // Form state
+      let formType = "medicine";
+      let formRepeat = true;
+
+      // Popup state
+      let activePopupTask = null;
+      let countdownInterval = null;
+      let missedTimeout = null;
+      let snoozeAnimFrame = null;
+      let countdownSec = 1800; // 30 min
+
+      // Reminder timers map: taskId -> timeoutId
+      let reminderTimers = {};
+
+      /* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
+      const ICONS = { therapy: "🧩", meal: "🍽️", medicine: "💊", other: "⭐" };
+      const LABELS = {
+        therapy: "Therapy",
+        meal: "Meal",
+        medicine: "Medicine",
+        other: "Other",
+      };
+
+      function todayKey() {
+        return new Date().toDateString();
+      }
+      function fmtTime(t) {
+        const [h, m] = t.split(":").map(Number);
+        const ampm = h >= 12 ? "PM" : "AM";
+        return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${ampm}`;
+      }
+      function fmtDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        });
+      }
+      function nowMinutes() {
+        const n = new Date();
+        return n.getHours() * 60 + n.getMinutes();
+      }
+      function taskMinutes(t) {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+      }
+
+      function save() {
+        localStorage.setItem("ac_tasks", JSON.stringify(tasks));
+        localStorage.setItem("ac_history", JSON.stringify(history));
+      }
+
+      function toast(msg, duration = 2800) {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), duration);
+      }
+
+      /* ══════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════ */
+      function goPage(page) {
+        currentPage = page;
+        ["today", "add", "history"].forEach((p) => {
+          const btn = document.getElementById("nav-" + p);
+          if (btn) btn.classList.toggle("active", p === page);
+        });
+        const subs = {
+          today: "Today's Schedule",
+          add: "Add Routine",
+          history: "Activity History",
+        };
+        document.getElementById("topbar-sub").textContent = subs[page] || "";
+        render();
+      }
+
+      /* ══════════════════════════════════════
+   RENDER ROUTER
+══════════════════════════════════════ */
+      function render() {
+        const c = document.getElementById("content");
+        if (currentPage === "today") {
+          c.innerHTML = renderToday();
+          bindToday();
+        }
+        if (currentPage === "add") {
+          c.innerHTML = renderAdd();
+          bindAdd();
+        }
+        if (currentPage === "history") {
+          c.innerHTML = renderHistory();
+        }
+      }
+
+      /* ══════════════════════════════════════
+   PAGE: TODAY
+══════════════════════════════════════ */
+      function getTodayTasks() {
+        const today = todayKey();
+        // Get tasks due today: daily tasks + tasks added today
+        return tasks
+          .filter((t) => t.repeat || t.addedDate === today)
+          .map((t) => {
+            const log = history.find(
+              (h) => h.taskId === t.id && h.date === today,
+            );
+            return { ...t, status: log ? log.status : getAutoStatus(t) };
+          })
+          .sort((a, b) => taskMinutes(a.time) - taskMinutes(b.time));
+      }
+
+      function getAutoStatus(task) {
+        const now = nowMinutes();
+        const tm = taskMinutes(task.time);
+        if (now >= tm && now < tm + 30) return "now";
+        return "pending";
+      }
+
+      function renderToday() {
+        const today = new Date();
+        const todayTasks = getTodayTasks();
+        const done = todayTasks.filter((t) => t.status === "done").length;
+        const total = todayTasks.length;
+        const pct = total ? Math.round((done / total) * 100) : 0;
+
+        const dayNames = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const d = today;
+
+        let html = `
+  <div class="date-strip fade-up">
+    <div class="date-icon">📅</div>
+    <div>
+      <div class="date-day">${dayNames[d.getDay()]}</div>
+      <div class="date-full">${monthNames[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</div>
+    </div>
+    <div class="date-stats">
+      <div class="dstat"><div class="dstat-n" style="color:var(--teal)">${done}</div><div class="dstat-l">Done</div></div>
+      <div class="dstat"><div class="dstat-n" style="color:var(--coral)">${todayTasks.filter((t) => t.status === "missed").length}</div><div class="dstat-l">Missed</div></div>
+      <div class="dstat"><div class="dstat-n">${total}</div><div class="dstat-l">Total</div></div>
+    </div>
+  </div>
+  <div class="progress-wrap fade-up delay-1">
+    <div class="progress-label"><span>Daily Progress</span><span>${pct}%</span></div>
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+  </div>`;
+
+        if (todayTasks.length === 0) {
+          html += `<div class="empty fade-up delay-2">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No routines yet</div>
+      <div class="empty-sub">Add your first routine to start tracking therapy, meals, and medications for today.</div>
+      <button class="empty-btn" onclick="goPage('add')">＋ Add First Routine</button>
+    </div>`;
+        } else {
+          // Now tasks
+          const nowTasks = todayTasks.filter((t) => t.status === "now");
+          const pendingTasks = todayTasks.filter((t) => t.status === "pending");
+          const doneTasks = todayTasks.filter((t) =>
+            ["done", "skip", "missed"].includes(t.status),
+          );
+
+          if (nowTasks.length) {
+            html += `<div class="sec-hd fade-up delay-2"><div class="sec-title">⬤ Happening Now</div></div>
+      <div class="task-list">${nowTasks.map((t, i) => taskCard(t, i)).join("")}</div><br/>`;
+          }
+          if (pendingTasks.length) {
+            html += `<div class="sec-hd fade-up"><div class="sec-title">📌 Upcoming</div><span class="sec-count">${pendingTasks.length}</span></div>
+      <div class="task-list">${pendingTasks.map((t, i) => taskCard(t, i)).join("")}</div><br/>`;
+          }
+          if (doneTasks.length) {
+            html += `<div class="sec-hd fade-up"><div class="sec-title">✅ Completed</div><span class="sec-count">${doneTasks.length}</span></div>
+      <div class="task-list">${doneTasks.map((t, i) => taskCard(t, i)).join("")}</div>`;
+          }
+        }
+        return html;
+      }
+
+      function taskCard(task, i) {
+        const delay = ["", "delay-1", "delay-2", "delay-3", "delay-4"][
+          Math.min(i, 4)
+        ];
+        const icon = ICONS[task.type] || "⭐";
+        let badge = "",
+          actions = "";
+
+        if (task.status === "done") {
+          badge = `<span class="task-status-badge badge-done">✓ Done</span>`;
+        } else if (task.status === "skip") {
+          badge = `<span class="task-status-badge badge-skip">Skipped</span>`;
+        } else if (task.status === "missed") {
+          badge = `<span class="task-status-badge badge-missed">⚠ Missed</span>`;
+        } else if (task.status === "now") {
+          badge = `<span class="task-status-badge badge-now">⬤ Now</span>`;
+          actions = `
+      <div class="task-actions">
+        <button class="task-btn done" onclick="markTask('${task.id}','done')">✓</button>
+        <button class="task-btn skip" onclick="markTask('${task.id}','skip')">–</button>
+      </div>`;
+        } else {
+          badge = `<span class="task-status-badge badge-pending">${fmtTime(task.time)}</span>`;
+          actions = `
+      <div class="task-actions">
+        <button class="task-btn done" onclick="markTask('${task.id}','done')">✓</button>
+        <button class="task-btn skip" onclick="markTask('${task.id}','skip')">–</button>
+      </div>`;
+        }
+
+        return `
+  <div class="task-card type-${task.type} status-${task.status} fade-up ${delay}">
+    <div class="task-icon-wrap">${icon}</div>
+    <div class="task-info">
+      <div class="task-name">${task.name}</div>
+      <div class="task-meta">
+        <span class="task-time">🕐 ${fmtTime(task.time)}</span>
+        ${task.repeat ? '<span class="task-repeat">Daily</span>' : ""}
+      </div>
+    </div>
+    ${badge}
+    ${actions}
+  </div>`;
+      }
+
+      function bindToday() {
+        // Set up reminder timers for pending tasks
+        getTodayTasks().forEach((t) => {
+          if (t.status === "pending" || t.status === "now") {
+            scheduleReminder(t);
+          }
+        });
+      }
+
+      function markTask(id, status) {
+        const today = todayKey();
+        // Remove old log
+        history = history.filter((h) => !(h.taskId === id && h.date === today));
+        const task = tasks.find((t) => t.id === id);
+        history.push({
+          taskId: id,
+          date: today,
+          status,
+          time: new Date().toISOString(),
+        });
+        save();
+        const msgs = {
+          done: "✅ Marked as done!",
+          skip: "↩️ Skipped",
+          missed: "⚠️ Marked as missed",
+        };
+        toast(msgs[status] || "Updated");
+        render();
+      }
+
+      /* ══════════════════════════════════════
+   PAGE: ADD ROUTINE
+══════════════════════════════════════ */
+      function renderAdd() {
+        return `
+  <div class="add-card fade-up">
+    <div class="add-card-title">New Routine</div>
+    <div class="add-card-sub">Add a task to Liam's daily schedule</div>
+
+    <div class="form-row">
+      <label class="form-label">TASK TYPE</label>
+      <div class="type-chips">
+        <div class="type-chip sel-medicine" id="chip-medicine" onclick="selectType('medicine')">💊 Medicine</div>
+        <div class="type-chip" id="chip-therapy" onclick="selectType('therapy')">🧩 Therapy</div>
+        <div class="type-chip" id="chip-meal" onclick="selectType('meal')">🍽️ Meal</div>
+        <div class="type-chip" id="chip-other" onclick="selectType('other')">⭐ Other</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label" for="task-name">TASK NAME</label>
+      <input class="form-input" id="task-name" type="text"
+        placeholder="e.g. Morning Medication, ABA Therapy..." maxlength="50"/>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label" for="task-time">TIME</label>
+      <input class="form-input" id="task-time" type="time" value="09:00"/>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">REPEAT</label>
+      <div class="toggle-row" onclick="toggleRepeat()">
+        <div>
+          <div class="toggle-label">Repeat Daily</div>
+          <div class="toggle-sub">Show this task every day</div>
+        </div>
+        <div class="toggle-switch on" id="repeat-toggle"></div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="addTask()">＋ Add to Routine</button>
+  </div>
+
+  <!-- existing tasks quick view -->
+  <div class="add-card fade-up delay-2" style="padding:18px 20px">
+    <div class="sec-hd" style="margin-bottom:12px">
+      <div class="sec-title" style="font-size:14px">All Routines</div>
+      <span class="sec-count">${tasks.length}</span>
+    </div>
+    ${
+      tasks.length === 0
+        ? `<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px">No routines added yet</div>`
+        : tasks
+            .map(
+              (t) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:18px">${ICONS[t.type]}</span>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700">${t.name}</div>
+            <div style="font-size:11px;color:var(--text3)">${fmtTime(t.time)} · ${t.repeat ? "Daily" : "Once"}</div>
+          </div>
+          <button onclick="deleteTask('${t.id}')"
+            style="font-size:16px;color:var(--coral);padding:4px 8px;border-radius:6px;transition:all .2s"
+            title="Delete">🗑</button>
+        </div>`,
+            )
+            .join("")
+    }
+  </div>`;
+      }
+
+      function bindAdd() {
+        // restore form state
+        selectType(formType, true);
+        document.getElementById("repeat-toggle").className =
+          "toggle-switch " + (formRepeat ? "on" : "");
+      }
+
+      function selectType(type, silent = false) {
+        formType = type;
+        ["medicine", "therapy", "meal", "other"].forEach((t) => {
+          const el = document.getElementById("chip-" + t);
+          if (!el) return;
+          el.className = "type-chip" + (t === type ? ` sel-${t}` : "");
+        });
+      }
+
+      function toggleRepeat() {
+        formRepeat = !formRepeat;
+        const el = document.getElementById("repeat-toggle");
+        if (el) el.className = "toggle-switch " + (formRepeat ? "on" : "");
+      }
+
+      function addTask() {
+        const nameEl = document.getElementById("task-name");
+        const timeEl = document.getElementById("task-time");
+        if (!nameEl || !timeEl) return;
+
+        const name = nameEl.value.trim();
+        const time = timeEl.value;
+        if (!name) {
+          toast("⚠️ Please enter a task name");
+          nameEl.focus();
+          return;
+        }
+        if (!time) {
+          toast("⚠️ Please set a time");
+          return;
+        }
+
+        const task = {
+          id: Date.now().toString(),
+          name,
+          time,
+          type: formType,
+          repeat: formRepeat,
+          addedDate: todayKey(),
+          createdAt: new Date().toISOString(),
+        };
+        tasks.push(task);
+        save();
+        toast(`✅ "${name}" added to routine!`);
+        // reset
+        nameEl.value = "";
+        scheduleReminder(task);
+        render(); // re-render add page
+      }
+
+      function deleteTask(id) {
+        tasks = tasks.filter((t) => t.id !== id);
+        save();
+        toast("🗑 Routine removed");
+        render();
+      }
+
+      /* ══════════════════════════════════════
+   PAGE: HISTORY
+══════════════════════════════════════ */
+      function renderHistory() {
+        if (!history.length) {
+          return `<div class="empty fade-up">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">No history yet</div>
+      <div class="empty-sub">Start completing routines and your activity history will appear here.</div>
+    </div>`;
+        }
+
+        // Group by date
+        const byDate = {};
+        history.forEach((h) => {
+          if (!byDate[h.date]) byDate[h.date] = [];
+          const task = tasks.find((t) => t.id === h.taskId);
+          byDate[h.date].push({ ...h, task });
+        });
+
+        const statusIcons = { done: "✅", skip: "⏭️", missed: "⚠️" };
+        const statusColors = {
+          done: "sage-l",
+          skip: "surface2",
+          missed: "coral-l",
+        };
+        const statusText = { done: "Done", skip: "Skipped", missed: "Missed" };
+        const statusTC = {
+          done: "#15803D",
+          skip: "#6B6460",
+          missed: "#DC2626",
+        };
+
+        let html = "";
+        Object.keys(byDate)
+          .sort((a, b) => new Date(b) - new Date(a))
+          .forEach((date, di) => {
+            const entries = byDate[date];
+            const doneCount = entries.filter((e) => e.status === "done").length;
+            html += `
+    <div class="history-day fade-up" style="animation-delay:${di * 0.05}s">
+      <div class="history-date-lbl">${date} — ${doneCount}/${entries.length} done</div>
+      ${entries
+        .sort((a, b) => new Date(a.time) - new Date(b.time))
+        .map(
+          (e) => `
+        <div class="history-item">
+          <span class="history-icon">${e.task ? ICONS[e.task.type] : "⭐"}</span>
+          <div style="flex:1">
+            <div class="history-name">${e.task ? e.task.name : "Deleted task"}</div>
+            <div class="history-time">${e.task ? fmtTime(e.task.time) : ""}</div>
+          </div>
+          <span class="history-badge" style="background:var(--${statusColors[e.status] || "surface2"});color:${statusTC[e.status] || "#6B6460"}">
+            ${statusIcons[e.status] || ""} ${statusText[e.status] || e.status}
+          </span>
+        </div>`,
+        )
+        .join("")}
+    </div>`;
+          });
+        return html;
+      }
+
+      /* ══════════════════════════════════════
+   SMART REMINDER LOGIC
+══════════════════════════════════════ */
+      function scheduleReminder(task) {
+        // clear existing
+        if (reminderTimers[task.id]) {
+          clearTimeout(reminderTimers[task.id]);
+          delete reminderTimers[task.id];
+        }
+
+        const now = new Date();
+        const [h, m] = task.time.split(":").map(Number);
+        const taskTime = new Date();
+        taskTime.setHours(h, m, 0, 0);
+
+        const msUntil = taskTime - now;
+
+        // Only schedule if it's in the future (within next 24h)
+        if (msUntil > 0 && msUntil < 24 * 60 * 60 * 1000) {
+          reminderTimers[task.id] = setTimeout(() => {
+            const today = todayKey();
+            const alreadyLogged = history.find(
+              (hx) => hx.taskId === task.id && hx.date === today,
+            );
+            if (!alreadyLogged) {
+              showPopup(task);
+            }
+          }, msUntil);
+        }
+      }
+
+      function showPopup(task) {
+        activePopupTask = task;
+        countdownSec = 1800; // 30 min
+
+        document.getElementById("pop-emoji").textContent =
+          ICONS[task.type] || "⭐";
+        document.getElementById("pop-title").textContent =
+          `Time for ${task.name}`;
+        document.getElementById("pop-sub").textContent =
+          `It's ${fmtTime(task.time)} — time for your scheduled ${LABELS[task.type] || "task"}. Tap Done when complete.`;
+
+        document.getElementById("snooze-bar-wrap").style.display = "none";
+        document.getElementById("snooze-btn").textContent =
+          "⏰ Remind me in 10 minutes";
+        document.getElementById("snooze-btn").disabled = false;
+
+        document.getElementById("popup-overlay").classList.add("open");
+        startCountdown();
+
+        // Auto-mark missed after 30 min
+        if (missedTimeout) clearTimeout(missedTimeout);
+        missedTimeout = setTimeout(
+          () => {
+            if (activePopupTask && activePopupTask.id === task.id) {
+              closePopup();
+              markTask(task.id, "missed");
+              toast("⚠️ Marked as missed — 30 min passed");
+              if (currentPage === "today") render();
+            }
+          },
+          30 * 60 * 1000,
+        );
+      }
+
+      function startCountdown() {
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+          countdownSec--;
+          if (countdownSec <= 0) {
+            clearInterval(countdownInterval);
+            return;
+          }
+          const min = Math.floor(countdownSec / 60);
+          const sec = countdownSec % 60;
+          const el = document.getElementById("pop-countdown");
+          if (el)
+            el.textContent = `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+        }, 1000);
+      }
+
+      function closePopup() {
+        document.getElementById("popup-overlay").classList.remove("open");
+        if (countdownInterval) {
+          clearInterval(countdownInterval);
+          countdownInterval = null;
+        }
+        if (missedTimeout) {
+          clearTimeout(missedTimeout);
+          missedTimeout = null;
+        }
+        activePopupTask = null;
+      }
+
+      function popupDone() {
+        if (!activePopupTask) return;
+        const task = activePopupTask;
+        closePopup();
+        markTask(task.id, "done");
+        toast("🎉 Great job! Routine completed!");
+        if (currentPage === "today") render();
+      }
+
+      function popupSkip() {
+        if (!activePopupTask) return;
+        const task = activePopupTask;
+        closePopup();
+        markTask(task.id, "skip");
+        toast("↩️ Skipped this time");
+        if (currentPage === "today") render();
+      }
+
+      function popupSnooze() {
+        if (!activePopupTask) return;
+        const task = activePopupTask;
+
+        // Disable snooze button + show bar
+        document.getElementById("snooze-btn").disabled = true;
+        document.getElementById("snooze-btn").textContent =
+          "⏰ Reminder set for 10 min";
+        document.getElementById("snooze-bar-wrap").style.display = "block";
+
+        // Animate bar shrinking over 10 min
+        const bar = document.getElementById("snooze-bar");
+        bar.style.transition = "none";
+        bar.style.width = "100%";
+        setTimeout(() => {
+          bar.style.transition = "width 600s linear";
+          bar.style.width = "0%";
+        }, 50);
+
+        // Close popup, reopen in 10 min
+        closePopup();
+        toast("⏰ Snoozed! Reminding you in 10 minutes.");
+
+        reminderTimers["snooze-" + task.id] = setTimeout(
+          () => {
+            const today = todayKey();
+            const alreadyLogged = history.find(
+              (h) => h.taskId === task.id && h.date === today,
+            );
+            if (!alreadyLogged) {
+              showPopup(task);
+              toast("⏰ Snooze ended — time for " + task.name);
+            }
+          },
+          10 * 60 * 1000,
+        );
+      }
+
+      /* ══════════════════════════════════════
+   DEMO: seed with sample data if empty
+   and trigger a popup demo
+══════════════════════════════════════ */
+      function seedDemo() {
+        if (tasks.length > 0) return;
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        // Add a task 1 minute from now to demo popup
+        const soon = new Date(now.getTime() + 60000);
+        const demoTime = `${pad(soon.getHours())}:${pad(soon.getMinutes())}`;
+
+        tasks = [
+          {
+            id: "1",
+            name: "Morning Medication",
+            type: "medicine",
+            time: "08:00",
+            repeat: true,
+            addedDate: todayKey(),
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "2",
+            name: "ABA Therapy Session",
+            type: "therapy",
+            time: "10:00",
+            repeat: true,
+            addedDate: todayKey(),
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "3",
+            name: "Lunch",
+            type: "meal",
+            time: "12:30",
+            repeat: true,
+            addedDate: todayKey(),
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "demo",
+            name: "Evening Medication",
+            type: "medicine",
+            time: demoTime,
+            repeat: true,
+            addedDate: todayKey(),
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "4",
+            name: "Sensory Break",
+            type: "other",
+            time: "14:00",
+            repeat: true,
+            addedDate: todayKey(),
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "5",
+            name: "OT Practice",
+            type: "therapy",
+            time: "15:30",
+            repeat: true,
+            addedDate: todayKey(),
+            createdAt: new Date().toISOString(),
+          },
+        ];
+        // Log some history
+        history = [
+          {
+            taskId: "1",
+            date: todayKey(),
+            status: "done",
+            time: new Date().toISOString(),
+          },
+        ];
+        save();
+      }
+
+      /* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+      seedDemo();
+
+      // Schedule reminders for all today's pending tasks on load
+      tasks.forEach((t) => {
+        const today = todayKey();
+        const alreadyLogged = history.find(
+          (h) => h.taskId === t.id && h.date === today,
+        );
+        if (!alreadyLogged && (t.repeat || t.addedDate === today)) {
+          scheduleReminder(t);
+        }
+      });
+
+      goPage("today");
+
+      // Demo: show a popup after 3 seconds so you can see how it works
+      setTimeout(() => {
+        const demoTask = tasks.find((t) => t.id === "demo");
+        if (demoTask) {
+          const today = todayKey();
+          const logged = history.find(
+            (h) => h.taskId === "demo" && h.date === today,
+          );
+          if (!logged) showPopup(demoTask);
+        }
+      }, 3000);
+    </script>
+  </body>
+</html>
