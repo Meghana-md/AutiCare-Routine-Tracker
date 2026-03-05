@@ -1,0 +1,1961 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KidsNourish – Child Nutrition Planner</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --green: #2ecc71;
+        --green-dark: #27ae60;
+        --orange: #f39c12;
+        --orange-light: #f9ca24;
+        --red: #e74c3c;
+        --blue: #3498db;
+        --purple: #9b59b6;
+        --bg: #fef9f0;
+        --card: #ffffff;
+        --text: #2c3e50;
+        --muted: #7f8c8d;
+        --border: #e8e0d0;
+        --radius: 20px;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Nunito", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        background-image:
+          radial-gradient(circle at 10% 20%, #fff3e0 0%, transparent 50%),
+          radial-gradient(circle at 90% 80%, #e8f8f0 0%, transparent 50%);
+      }
+
+      /* ── HEADER ── */
+      .app-header {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 16px rgba(46, 204, 113, 0.3);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .app-header .logo {
+        font-family: "Baloo 2", cursive;
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #fff;
+      }
+      .app-header .logo span {
+        color: #fff3cd;
+      }
+      .header-tagline {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      /* ── NAV TABS ── */
+      .nav-tabs {
+        display: flex;
+        background: #fff;
+        border-bottom: 2px solid var(--border);
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .nav-tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .tab-btn {
+        flex: 1;
+        min-width: 100px;
+        padding: 14px 10px;
+        border: none;
+        background: none;
+        font-family: "Nunito", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--muted);
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+        white-space: nowrap;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .tab-btn .tab-icon {
+        font-size: 1.3rem;
+      }
+      .tab-btn.active {
+        color: var(--green-dark);
+        border-bottom-color: var(--green);
+      }
+      .tab-btn:hover:not(.active) {
+        color: var(--text);
+        background: #f8f9fa;
+      }
+
+      /* ── SCREEN ── */
+      .screen {
+        display: none;
+        padding: 20px;
+        max-width: 680px;
+        margin: 0 auto;
+      }
+      .screen.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── SECTION TITLE ── */
+      .section-title {
+        font-family: "Baloo 2", cursive;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+      .section-sub {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+
+      /* ── CARD ── */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 22px;
+        box-shadow: var(--shadow);
+        border: 1.5px solid var(--border);
+        margin-bottom: 16px;
+      }
+      .card-title {
+        font-family: "Baloo 2", cursive;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* ── FORM ELEMENTS ── */
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--text);
+      }
+      .form-label .required {
+        color: var(--red);
+        margin-left: 2px;
+      }
+      .form-hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 11px 14px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-family: "Nunito", sans-serif;
+        font-size: 0.9rem;
+        color: var(--text);
+        background: #fafafa;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        outline: none;
+      }
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+        background: #fff;
+      }
+
+      /* radio/checkbox pill groups */
+      .pill-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .pill-option {
+        position: relative;
+      }
+      .pill-option input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+      }
+      .pill-option label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border: 2px solid var(--border);
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #fafafa;
+        color: var(--muted);
+        user-select: none;
+      }
+      .pill-option input:checked + label {
+        border-color: var(--green);
+        background: linear-gradient(135deg, #d5f5e3, #a9dfbf);
+        color: var(--green-dark);
+      }
+      .pill-option.orange input:checked + label {
+        border-color: var(--orange);
+        background: linear-gradient(135deg, #fdebd0, #fad7a0);
+        color: #d68910;
+      }
+
+      /* checkbox tags */
+      .tag-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tag-option {
+        position: relative;
+      }
+      .tag-option input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+      }
+      .tag-option label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 13px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #fafafa;
+        color: var(--muted);
+      }
+      .tag-option input:checked + label {
+        border-color: var(--red);
+        background: #fde8e8;
+        color: var(--red);
+      }
+
+      /* ── BUTTONS ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 13px 28px;
+        border-radius: 50px;
+        font-family: "Nunito", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(46, 204, 113, 0.35);
+        width: 100%;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(46, 204, 113, 0.45);
+      }
+      .btn-sm {
+        padding: 7px 16px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+      .btn-ate {
+        background: #d5f5e3;
+        color: var(--green-dark);
+        border: 2px solid #a9dfbf;
+      }
+      .btn-ate:hover,
+      .btn-ate.active {
+        background: var(--green);
+        color: #fff;
+      }
+      .btn-skip {
+        background: #fde8e8;
+        color: var(--red);
+        border: 2px solid #f5b7b1;
+      }
+      .btn-skip:hover,
+      .btn-skip.active {
+        background: var(--red);
+        color: #fff;
+      }
+      .btn-like {
+        background: #eaf4fe;
+        color: var(--blue);
+        border: 2px solid #aed6f1;
+      }
+      .btn-like:hover,
+      .btn-like.active {
+        background: var(--blue);
+        color: #fff;
+      }
+      .btn-dislike {
+        background: #fef9e7;
+        color: var(--orange);
+        border: 2px solid #f9e79f;
+      }
+      .btn-dislike:hover,
+      .btn-dislike.active {
+        background: var(--orange);
+        color: #fff;
+      }
+
+      /* ── PROFILE DISPLAY ── */
+      .profile-badge {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: linear-gradient(135deg, #eafaf1, #d5f5e3);
+        border: 2px solid #a9dfbf;
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+      }
+      .profile-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        flex-shrink: 0;
+      }
+      .profile-name {
+        font-family: "Baloo 2", cursive;
+        font-size: 1.1rem;
+        font-weight: 800;
+      }
+      .profile-meta {
+        font-size: 0.78rem;
+        color: var(--muted);
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      .profile-tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .p-tag {
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        background: var(--green);
+        color: #fff;
+      }
+      .p-tag.orange {
+        background: var(--orange);
+      }
+      .p-tag.red {
+        background: var(--red);
+      }
+      .p-tag.blue {
+        background: var(--blue);
+      }
+
+      /* ── MEAL SECTIONS ── */
+      .meal-section {
+        margin-bottom: 20px;
+      }
+      .meal-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px dashed var(--border);
+      }
+      .meal-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+      }
+      .meal-icon.breakfast {
+        background: #fef3cd;
+      }
+      .meal-icon.lunch {
+        background: #d5f5e3;
+      }
+      .meal-icon.dinner {
+        background: #d6eaf8;
+      }
+      .meal-icon.snack {
+        background: #fde8d8;
+      }
+      .meal-label {
+        font-family: "Baloo 2", cursive;
+        font-size: 1rem;
+        font-weight: 800;
+      }
+      .meal-time {
+        font-size: 0.72rem;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .food-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .food-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: #fafafa;
+        border-radius: 12px;
+        border: 1.5px solid var(--border);
+        transition: border-color 0.2s;
+      }
+      .food-option:hover {
+        border-color: var(--green);
+      }
+      .food-name {
+        font-weight: 700;
+        font-size: 0.88rem;
+      }
+      .food-meta {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .food-badges {
+        display: flex;
+        gap: 5px;
+      }
+      .badge {
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.68rem;
+        font-weight: 800;
+      }
+      .badge-veg {
+        background: #d5f5e3;
+        color: var(--green-dark);
+      }
+      .badge-nonveg {
+        background: #fde8e8;
+        color: var(--red);
+      }
+      .badge-protein {
+        background: #d6eaf8;
+        color: var(--blue);
+      }
+      .badge-cal {
+        background: #fef3cd;
+        color: #d68910;
+      }
+
+      /* ── WATER REMINDER ── */
+      .water-card {
+        background: linear-gradient(135deg, #d6eaf8, #aed6f1);
+        border: 2px solid #7fb3d3;
+        border-radius: var(--radius);
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+      .water-icon {
+        font-size: 2.2rem;
+      }
+      .water-text .wt {
+        font-family: "Baloo 2", cursive;
+        font-size: 1rem;
+        font-weight: 800;
+        color: #1a5276;
+      }
+      .water-text .ws {
+        font-size: 0.8rem;
+        color: #2980b9;
+        font-weight: 600;
+      }
+      .water-glasses {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .glass {
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: transform 0.15s;
+        filter: grayscale(1);
+        opacity: 0.4;
+      }
+      .glass.filled {
+        filter: none;
+        opacity: 1;
+        transform: scale(1.15);
+      }
+
+      /* ── FOOD LOG ── */
+      .log-date {
+        font-family: "Baloo 2", cursive;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .log-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 14px;
+        background: #fafafa;
+        border-radius: 12px;
+        border: 1.5px solid var(--border);
+        margin-bottom: 8px;
+      }
+      .log-item-name {
+        flex: 1;
+        font-weight: 700;
+        font-size: 0.88rem;
+      }
+      .log-meal-tag {
+        font-size: 0.7rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .log-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      /* ── SUMMARY ── */
+      .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .summary-box {
+        background: #fafafa;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        text-align: center;
+      }
+      .summary-num {
+        font-family: "Baloo 2", cursive;
+        font-size: 1.6rem;
+        font-weight: 900;
+      }
+      .summary-lbl {
+        font-size: 0.72rem;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .summary-num.green {
+        color: var(--green-dark);
+      }
+      .summary-num.red {
+        color: var(--red);
+      }
+      .summary-num.blue {
+        color: var(--blue);
+      }
+      .summary-num.orange {
+        color: var(--orange);
+      }
+
+      /* ── EMPTY STATE ── */
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+      }
+      .empty-state .es-icon {
+        font-size: 3.5rem;
+        margin-bottom: 12px;
+      }
+      .empty-state .es-title {
+        font-family: "Baloo 2", cursive;
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+      }
+      .empty-state .es-text {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      /* ── TOAST ── */
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--text);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+        z-index: 999;
+        white-space: nowrap;
+      }
+      #toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ── TIP BANNER ── */
+      .tip-banner {
+        background: linear-gradient(135deg, #fef3cd, #fde8a0);
+        border: 2px solid #f9e79f;
+        border-radius: 14px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #7d6608;
+      }
+      .tip-banner .tip-icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        margin-top: -1px;
+      }
+
+      /* divider */
+      .divider {
+        border: none;
+        border-top: 2px dashed var(--border);
+        margin: 8px 0 16px;
+      }
+
+      @media (max-width: 420px) {
+        .summary-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .log-actions {
+          gap: 4px;
+        }
+        .btn-sm {
+          padding: 6px 10px;
+          font-size: 0.73rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-header">
+      <div>
+        <div class="logo">🥦 Kids<span>Nourish</span></div>
+        <div class="header-tagline">Smart Nutrition for Growing Kids</div>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button
+        class="tab-btn active"
+        onclick="showScreen('profile')"
+        id="tab-profile"
+      >
+        <span class="tab-icon">👦</span> Profile
+      </button>
+      <button class="tab-btn" onclick="showScreen('reco')" id="tab-reco">
+        <span class="tab-icon">🍽️</span> Meals
+      </button>
+      <button class="tab-btn" onclick="showScreen('log')" id="tab-log">
+        <span class="tab-icon">📋</span> Food Log
+      </button>
+    </nav>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  SCREEN 1 – CHILD PROFILE                -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="screen active" id="screen-profile">
+      <div style="padding-top: 6px">
+        <div class="section-title">Child Profile 👦</div>
+        <div class="section-sub">
+          Fill in the details for personalised meal recommendations
+        </div>
+
+        <!-- Basic Info -->
+        <div class="card">
+          <div class="card-title">🧒 Basic Information</div>
+
+          <div class="form-group">
+            <label class="form-label"
+              >Child's Name <span class="required">*</span></label
+            >
+            <input type="text" id="p-name" placeholder="e.g. Arjun, Priya…" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <div class="form-group">
+              <label class="form-label"
+                >Age (years) <span class="required">*</span></label
+              >
+              <input
+                type="number"
+                id="p-age"
+                min="1"
+                max="18"
+                placeholder="e.g. 7"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select id="p-gender">
+                <option value="">Select…</option>
+                <option value="boy">Boy</option>
+                <option value="girl">Girl</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <div class="form-group">
+              <label class="form-label">Weight (kg)</label>
+              <input
+                type="number"
+                id="p-weight"
+                min="5"
+                max="120"
+                step="0.1"
+                placeholder="e.g. 22"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Height (cm)</label>
+              <input
+                type="number"
+                id="p-height"
+                min="50"
+                max="220"
+                placeholder="e.g. 120"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Diet & Goal -->
+        <div class="card">
+          <div class="card-title">🥗 Diet & Health Goal</div>
+
+          <div class="form-group">
+            <label class="form-label"
+              >Diet Type <span class="required">*</span></label
+            >
+            <div class="pill-group">
+              <div class="pill-option">
+                <input type="radio" name="diet" id="diet-veg" value="veg" />
+                <label for="diet-veg">🌿 Vegetarian</label>
+              </div>
+              <div class="pill-option">
+                <input
+                  type="radio"
+                  name="diet"
+                  id="diet-nonveg"
+                  value="nonveg"
+                />
+                <label for="diet-nonveg">🍗 Non-Vegetarian</label>
+              </div>
+              <div class="pill-option">
+                <input type="radio" name="diet" id="diet-egg" value="egg" />
+                <label for="diet-egg">🥚 Eggetarian</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Health Goal</label>
+            <div class="pill-group">
+              <div class="pill-option orange">
+                <input type="radio" name="goal" id="goal-gain" value="gain" />
+                <label for="goal-gain">📈 Weight Gain</label>
+              </div>
+              <div class="pill-option">
+                <input
+                  type="radio"
+                  name="goal"
+                  id="goal-healthy"
+                  value="healthy"
+                  checked
+                />
+                <label for="goal-healthy">💚 Stay Healthy</label>
+              </div>
+              <div class="pill-option orange">
+                <input type="radio" name="goal" id="goal-loss" value="loss" />
+                <label for="goal-loss">📉 Weight Loss</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Activity Level</label>
+            <select id="p-activity">
+              <option value="low">🛋️ Low (mostly indoor, sedentary)</option>
+              <option value="moderate" selected>
+                🚶 Moderate (plays outside sometimes)
+              </option>
+              <option value="high">⚽ High (very active / sports daily)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Medical & Allergies -->
+        <div class="card">
+          <div class="card-title">⚕️ Allergies & Conditions</div>
+
+          <div class="form-group">
+            <label class="form-label">Known Allergies</label>
+            <div class="tag-group">
+              <div class="tag-option">
+                <input type="checkbox" id="allergy-milk" value="milk" /><label
+                  for="allergy-milk"
+                  >🥛 Milk/Dairy</label
+                >
+              </div>
+              <div class="tag-option">
+                <input type="checkbox" id="allergy-egg" value="egg" /><label
+                  for="allergy-egg"
+                  >🥚 Egg</label
+                >
+              </div>
+              <div class="tag-option">
+                <input type="checkbox" id="allergy-nuts" value="nuts" /><label
+                  for="allergy-nuts"
+                  >🥜 Nuts</label
+                >
+              </div>
+              <div class="tag-option">
+                <input
+                  type="checkbox"
+                  id="allergy-gluten"
+                  value="gluten"
+                /><label for="allergy-gluten">🌾 Gluten</label>
+              </div>
+              <div class="tag-option">
+                <input type="checkbox" id="allergy-soy" value="soy" /><label
+                  for="allergy-soy"
+                  >🫘 Soy</label
+                >
+              </div>
+              <div class="tag-option">
+                <input type="checkbox" id="allergy-fish" value="fish" /><label
+                  for="allergy-fish"
+                  >🐟 Fish/Seafood</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Medical Conditions (if any)</label>
+            <div class="tag-group">
+              <div class="tag-option">
+                <input
+                  type="checkbox"
+                  id="cond-diabetes"
+                  value="diabetes"
+                /><label for="cond-diabetes">💉 Diabetes</label>
+              </div>
+              <div class="tag-option">
+                <input
+                  type="checkbox"
+                  id="cond-anaemia"
+                  value="anaemia"
+                /><label for="cond-anaemia">🩸 Anaemia</label>
+              </div>
+              <div class="tag-option">
+                <input
+                  type="checkbox"
+                  id="cond-constipation"
+                  value="constipation"
+                /><label for="cond-constipation">💊 Constipation</label>
+              </div>
+              <div class="tag-option">
+                <input type="checkbox" id="cond-none" value="none" /><label
+                  for="cond-none"
+                  >✅ None</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Food Preferences / Dislikes</label>
+            <input
+              type="text"
+              id="p-dislikes"
+              placeholder="e.g. no bitter gourd, hates spinach…"
+            />
+            <div class="form-hint">We'll try to avoid these when possible</div>
+          </div>
+        </div>
+
+        <!-- Lifestyle -->
+        <div class="card">
+          <div class="card-title">⏰ Eating Habits</div>
+
+          <div class="form-group">
+            <label class="form-label">Meal Frequency</label>
+            <select id="p-meals">
+              <option value="3">3 meals a day</option>
+              <option value="5" selected>3 meals + 2 snacks</option>
+              <option value="6">3 meals + 3 snacks</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">School Timing</label>
+            <div class="pill-group">
+              <div class="pill-option">
+                <input
+                  type="radio"
+                  name="school"
+                  id="school-morning"
+                  value="morning"
+                  checked
+                />
+                <label for="school-morning">☀️ Morning shift</label>
+              </div>
+              <div class="pill-option">
+                <input
+                  type="radio"
+                  name="school"
+                  id="school-afternoon"
+                  value="afternoon"
+                />
+                <label for="school-afternoon">🌤️ Afternoon shift</label>
+              </div>
+              <div class="pill-option">
+                <input
+                  type="radio"
+                  name="school"
+                  id="school-home"
+                  value="home"
+                />
+                <label for="school-home">🏠 Home/Online</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Region / Cuisine Preference</label>
+            <select id="p-region">
+              <option value="north">🇮🇳 North Indian</option>
+              <option value="south">🌴 South Indian</option>
+              <option value="west">🌊 West Indian</option>
+              <option value="east">🍚 East Indian</option>
+              <option value="any" selected>🌍 Any / Mixed</option>
+            </select>
+          </div>
+        </div>
+
+        <button
+          class="btn btn-primary"
+          onclick="saveProfile()"
+          style="margin-bottom: 30px"
+        >
+          💾 Save Profile & Get Recommendations
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  SCREEN 2 – RECOMMENDATIONS              -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="screen" id="screen-reco">
+      <div id="reco-content">
+        <div class="empty-state">
+          <div class="es-icon">🍽️</div>
+          <div class="es-title">No Profile Yet</div>
+          <div class="es-text">
+            Please fill in the child's profile first to get personalised meal
+            recommendations.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!--  SCREEN 3 – FOOD LOG                     -->
+    <!-- ══════════════════════════════════════════ -->
+    <div class="screen" id="screen-log">
+      <div id="log-content">
+        <div class="empty-state">
+          <div class="es-icon">📋</div>
+          <div class="es-title">No Profile Yet</div>
+          <div class="es-text">
+            Save a profile and get recommendations first, then log your child's
+            meals here.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+      // ──────────────────────────────────────────────
+      //  FOOD DATABASE
+      // ──────────────────────────────────────────────
+      const FOODS = [
+        // BREAKFAST – VEG
+        {
+          id: 1,
+          name: "Idli with Sambar",
+          meal: "breakfast",
+          tags: ["veg", "soft", "south"],
+          cal: 180,
+          protein: 6,
+          desc: "Steamed rice cakes with lentil soup",
+        },
+        {
+          id: 2,
+          name: "Poha (Flattened Rice)",
+          meal: "breakfast",
+          tags: ["veg", "light", "any"],
+          cal: 200,
+          protein: 4,
+          desc: "Light and easy on the tummy",
+        },
+        {
+          id: 3,
+          name: "Upma",
+          meal: "breakfast",
+          tags: ["veg", "soft", "south"],
+          cal: 210,
+          protein: 5,
+          desc: "Semolina cooked with veggies",
+        },
+        {
+          id: 4,
+          name: "Dalia Porridge",
+          meal: "breakfast",
+          tags: ["veg", "soft", "gain", "north"],
+          cal: 240,
+          protein: 7,
+          desc: "Broken wheat, great for growth",
+        },
+        {
+          id: 5,
+          name: "Besan Chilla",
+          meal: "breakfast",
+          tags: ["veg", "protein", "any"],
+          cal: 220,
+          protein: 9,
+          desc: "Chickpea flour pancakes",
+        },
+        {
+          id: 6,
+          name: "Vegetable Paratha",
+          meal: "breakfast",
+          tags: ["veg", "north", "gain"],
+          cal: 280,
+          protein: 6,
+          desc: "Stuffed flatbread with veggies",
+        },
+        {
+          id: 7,
+          name: "Oats Porridge with Banana",
+          meal: "breakfast",
+          tags: ["veg", "soft", "loss", "any"],
+          cal: 190,
+          protein: 5,
+          desc: "Filling and nutritious",
+        },
+        {
+          id: 8,
+          name: "Ragi Dosa",
+          meal: "breakfast",
+          tags: ["veg", "south", "calcium", "nomilk"],
+          cal: 195,
+          protein: 5,
+          desc: "Finger millet crepe, rich in calcium",
+        },
+
+        // BREAKFAST – NON-VEG / EGG
+        {
+          id: 9,
+          name: "Boiled Egg + Toast",
+          meal: "breakfast",
+          tags: ["egg", "nonveg", "protein"],
+          cal: 250,
+          protein: 12,
+          desc: "Simple, protein-packed morning meal",
+        },
+        {
+          id: 10,
+          name: "Egg Omelette with Veggies",
+          meal: "breakfast",
+          tags: ["egg", "nonveg", "protein"],
+          cal: 230,
+          protein: 13,
+          desc: "Colourful veggie omelette",
+        },
+        {
+          id: 11,
+          name: "Chicken Sandwich",
+          meal: "breakfast",
+          tags: ["nonveg", "protein", "gain"],
+          cal: 320,
+          protein: 18,
+          desc: "Whole wheat with grilled chicken",
+        },
+
+        // LUNCH – VEG
+        {
+          id: 12,
+          name: "Dal Rice + Sabzi",
+          meal: "lunch",
+          tags: ["veg", "any", "balanced"],
+          cal: 380,
+          protein: 12,
+          desc: "Classic balanced Indian meal",
+        },
+        {
+          id: 13,
+          name: "Rajma Chawal",
+          meal: "lunch",
+          tags: ["veg", "north", "protein", "gain"],
+          cal: 420,
+          protein: 15,
+          desc: "Kidney bean curry with rice",
+        },
+        {
+          id: 14,
+          name: "Chole Rice",
+          meal: "lunch",
+          tags: ["veg", "north", "protein"],
+          cal: 400,
+          protein: 14,
+          desc: "Chickpea curry with rice",
+        },
+        {
+          id: 15,
+          name: "Sambar Rice",
+          meal: "lunch",
+          tags: ["veg", "south", "balanced"],
+          cal: 350,
+          protein: 10,
+          desc: "Tangy lentil soup with rice",
+        },
+        {
+          id: 16,
+          name: "Paneer Sabzi + Roti",
+          meal: "lunch",
+          tags: ["veg", "north", "protein", "calcium", "gain"],
+          cal: 440,
+          protein: 18,
+          desc: "Cottage cheese curry with flatbread",
+        },
+        {
+          id: 17,
+          name: "Khichdi + Curd",
+          meal: "lunch",
+          tags: ["veg", "soft", "any"],
+          cal: 320,
+          protein: 10,
+          desc: "Easy to digest, great for ill days",
+        },
+        {
+          id: 18,
+          name: "Mixed Veg Pulao",
+          meal: "lunch",
+          tags: ["veg", "any", "balanced"],
+          cal: 360,
+          protein: 8,
+          desc: "Fragrant rice with mixed vegetables",
+        },
+        {
+          id: 19,
+          name: "Palak Dal + Roti",
+          meal: "lunch",
+          tags: ["veg", "any", "iron", "anaemia"],
+          cal: 340,
+          protein: 13,
+          desc: "Spinach lentil soup, iron-rich",
+        },
+
+        // LUNCH – NON-VEG
+        {
+          id: 20,
+          name: "Chicken Curry + Rice",
+          meal: "lunch",
+          tags: ["nonveg", "protein", "gain"],
+          cal: 480,
+          protein: 28,
+          desc: "High protein, flavourful meal",
+        },
+        {
+          id: 21,
+          name: "Fish Curry + Rice",
+          meal: "lunch",
+          tags: ["nonveg", "protein", "omega3"],
+          cal: 430,
+          protein: 25,
+          desc: "Brain-boosting omega-3 rich meal",
+        },
+        {
+          id: 22,
+          name: "Egg Curry + Rice",
+          meal: "lunch",
+          tags: ["egg", "nonveg", "protein"],
+          cal: 400,
+          protein: 20,
+          desc: "Simple and filling egg curry",
+        },
+
+        // DINNER – VEG
+        {
+          id: 23,
+          name: "Roti + Dal + Salad",
+          meal: "dinner",
+          tags: ["veg", "light", "any", "loss"],
+          cal: 310,
+          protein: 12,
+          desc: "Light but complete dinner",
+        },
+        {
+          id: 24,
+          name: "Vegetable Soup + Bread",
+          meal: "dinner",
+          tags: ["veg", "soft", "light", "loss"],
+          cal: 220,
+          protein: 6,
+          desc: "Warm and comforting, easy to digest",
+        },
+        {
+          id: 25,
+          name: "Moong Dal Khichdi",
+          meal: "dinner",
+          tags: ["veg", "soft", "any"],
+          cal: 300,
+          protein: 11,
+          desc: "Easy on digestion, great for dinner",
+        },
+        {
+          id: 26,
+          name: "Chapati + Paneer Bhurji",
+          meal: "dinner",
+          tags: ["veg", "north", "protein", "calcium"],
+          cal: 380,
+          protein: 16,
+          desc: "Scrambled cottage cheese with spices",
+        },
+        {
+          id: 27,
+          name: "Chapati + Mixed Dal",
+          meal: "dinner",
+          tags: ["veg", "any", "balanced"],
+          cal: 330,
+          protein: 13,
+          desc: "Multi-lentil dal, great protein combo",
+        },
+        {
+          id: 28,
+          name: "Curd Rice",
+          meal: "dinner",
+          tags: ["veg", "south", "soft", "probiotic"],
+          cal: 280,
+          protein: 8,
+          desc: "Cooling probiotic-rich dinner",
+        },
+
+        // DINNER – NON-VEG
+        {
+          id: 29,
+          name: "Grilled Chicken + Roti + Salad",
+          meal: "dinner",
+          tags: ["nonveg", "protein", "gain", "loss"],
+          cal: 420,
+          protein: 32,
+          desc: "Lean protein dinner",
+        },
+        {
+          id: 30,
+          name: "Fish Tikka + Chapati",
+          meal: "dinner",
+          tags: ["nonveg", "protein", "omega3"],
+          cal: 390,
+          protein: 28,
+          desc: "Baked fish with flatbread",
+        },
+
+        // SNACKS – VEG
+        {
+          id: 31,
+          name: "Fruit Chaat",
+          meal: "snack",
+          tags: ["veg", "light", "vitamins", "any"],
+          cal: 120,
+          protein: 2,
+          desc: "Mixed seasonal fruits with spices",
+        },
+        {
+          id: 32,
+          name: "Sprouts Salad",
+          meal: "snack",
+          tags: ["veg", "protein", "any"],
+          cal: 140,
+          protein: 8,
+          desc: "Sprouted lentils, power-packed snack",
+        },
+        {
+          id: 33,
+          name: "Peanut Chikki",
+          meal: "snack",
+          tags: ["veg", "gain", "nuts", "energy"],
+          cal: 180,
+          protein: 6,
+          desc: "Peanut & jaggery energy bar",
+        },
+        {
+          id: 34,
+          name: "Banana + Milk",
+          meal: "snack",
+          tags: ["veg", "calcium", "gain", "soft"],
+          cal: 200,
+          protein: 5,
+          desc: "Classic energy-boosting combo",
+        },
+        {
+          id: 35,
+          name: "Roasted Makhana",
+          meal: "snack",
+          tags: ["veg", "light", "loss", "any"],
+          cal: 100,
+          protein: 3,
+          desc: "Fox nuts – crunchy, low calorie",
+        },
+        {
+          id: 36,
+          name: "Moong Dal Chilla",
+          meal: "snack",
+          tags: ["veg", "protein", "any"],
+          cal: 160,
+          protein: 9,
+          desc: "Green lentil pancake, great snack",
+        },
+        {
+          id: 37,
+          name: "Vegetable Sandwich",
+          meal: "snack",
+          tags: ["veg", "any", "balanced"],
+          cal: 200,
+          protein: 6,
+          desc: "Whole wheat with fresh veggies",
+        },
+        {
+          id: 38,
+          name: "Ragi Ladoo",
+          meal: "snack",
+          tags: ["veg", "south", "calcium", "nomilk", "gain"],
+          cal: 170,
+          protein: 4,
+          desc: "Finger millet sweet, calcium-rich",
+        },
+        {
+          id: 39,
+          name: "Dates + Almonds",
+          meal: "snack",
+          tags: ["veg", "nuts", "gain", "iron", "anaemia"],
+          cal: 150,
+          protein: 4,
+          desc: "Natural iron and energy booster",
+        },
+
+        // SNACKS – NON-VEG / EGG
+        {
+          id: 40,
+          name: "Boiled Egg (1-2)",
+          meal: "snack",
+          tags: ["egg", "nonveg", "protein", "gain"],
+          cal: 140,
+          protein: 12,
+          desc: "Quick, filling protein snack",
+        },
+        {
+          id: 41,
+          name: "Chicken Tikka Bites",
+          meal: "snack",
+          tags: ["nonveg", "protein", "gain"],
+          cal: 180,
+          protein: 16,
+          desc: "Mini baked chicken pieces",
+        },
+      ];
+
+      // ──────────────────────────────────────────────
+      //  APP STATE
+      // ──────────────────────────────────────────────
+      let profile = null;
+      let foodLog = {}; // { foodId: { status:'ate'|'skip', like:'like'|'dislike'|null } }
+      let waterCount = 0;
+      const today = new Date().toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+
+      // ──────────────────────────────────────────────
+      //  NAVIGATION
+      // ──────────────────────────────────────────────
+      function showScreen(name) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("screen-" + name).classList.add("active");
+        document.getElementById("tab-" + name).classList.add("active");
+        if (name === "reco") renderReco();
+        if (name === "log") renderLog();
+      }
+
+      // ──────────────────────────────────────────────
+      //  PROFILE SAVE
+      // ──────────────────────────────────────────────
+      function saveProfile() {
+        const name = document.getElementById("p-name").value.trim();
+        const age = parseInt(document.getElementById("p-age").value);
+        const dietEl = document.querySelector('input[name="diet"]:checked');
+
+        if (!name) {
+          showToast("⚠️ Please enter child's name");
+          return;
+        }
+        if (!age || age < 1 || age > 18) {
+          showToast("⚠️ Please enter a valid age (1–18)");
+          return;
+        }
+        if (!dietEl) {
+          showToast("⚠️ Please select a diet type");
+          return;
+        }
+
+        const allergies = [];
+        document
+          .querySelectorAll('[id^="allergy-"]:checked')
+          .forEach((el) => allergies.push(el.value));
+
+        const conditions = [];
+        document
+          .querySelectorAll('[id^="cond-"]:checked')
+          .forEach((el) => conditions.push(el.value));
+
+        const goalEl = document.querySelector('input[name="goal"]:checked');
+        const schoolEl = document.querySelector('input[name="school"]:checked');
+
+        profile = {
+          name,
+          age,
+          diet: dietEl.value,
+          gender: document.getElementById("p-gender").value,
+          weight: parseFloat(document.getElementById("p-weight").value) || null,
+          height: parseFloat(document.getElementById("p-height").value) || null,
+          goal: goalEl ? goalEl.value : "healthy",
+          activity: document.getElementById("p-activity").value,
+          allergies,
+          conditions,
+          dislikes: document.getElementById("p-dislikes").value.trim(),
+          region: document.getElementById("p-region").value,
+          meals: document.getElementById("p-meals").value,
+          school: schoolEl ? schoolEl.value : "morning",
+        };
+
+        foodLog = {};
+        showToast("✅ Profile saved for " + name + "!");
+        setTimeout(() => showScreen("reco"), 700);
+      }
+
+      // ──────────────────────────────────────────────
+      //  RULE ENGINE – filter & rank foods
+      // ──────────────────────────────────────────────
+      function getRecommendations() {
+        if (!profile)
+          return { breakfast: [], lunch: [], dinner: [], snack: [] };
+
+        const { age, diet, allergies, goal, activity, conditions } = profile;
+
+        function score(food) {
+          let s = 0;
+
+          // Diet match
+          if (diet === "veg" && food.tags.includes("veg")) s += 10;
+          if (diet === "nonveg") s += 5; // nonveg can eat everything
+          if (
+            diet === "egg" &&
+            (food.tags.includes("veg") || food.tags.includes("egg"))
+          )
+            s += 10;
+          if (diet === "veg" && food.tags.includes("nonveg")) return -9999; // hard exclude
+          if (
+            diet === "egg" &&
+            food.tags.includes("nonveg") &&
+            !food.tags.includes("egg")
+          )
+            return -9999;
+          if (
+            diet === "nonveg" &&
+            food.tags.includes("veg") &&
+            !food.tags.includes("egg")
+          )
+            s += 3; // veg is fine for nonveg
+
+          // Allergy exclusions
+          if (
+            allergies.includes("milk") &&
+            food.tags.includes("calcium") &&
+            !food.tags.includes("nomilk")
+          )
+            s -= 20;
+          if (
+            allergies.includes("milk") &&
+            food.name.toLowerCase().includes("curd")
+          )
+            s -= 20;
+          if (
+            allergies.includes("milk") &&
+            food.name.toLowerCase().includes("paneer")
+          )
+            s -= 20;
+          if (
+            allergies.includes("milk") &&
+            food.name.toLowerCase().includes("milk")
+          )
+            s -= 20;
+          if (allergies.includes("egg") && food.tags.includes("egg"))
+            return -9999;
+          if (allergies.includes("nuts") && food.tags.includes("nuts"))
+            return -9999;
+          if (allergies.includes("fish") && food.tags.includes("omega3"))
+            return -9999;
+          if (
+            allergies.includes("gluten") &&
+            (food.name.includes("Bread") ||
+              food.name.includes("Roti") ||
+              food.name.includes("Paratha") ||
+              food.name.includes("Sandwich") ||
+              food.name.includes("Toast") ||
+              food.name.includes("Upma"))
+          )
+            return -9999;
+          if (allergies.includes("soy") && food.tags.includes("soy"))
+            return -9999;
+
+          // Age rules
+          if (age >= 3 && age <= 6) {
+            if (food.tags.includes("soft")) s += 8;
+            if (food.cal > 400) s -= 5;
+          }
+          if (age >= 7 && age <= 12) {
+            if (food.tags.includes("protein")) s += 6;
+            if (food.tags.includes("balanced")) s += 4;
+          }
+          if (age >= 13) {
+            if (food.tags.includes("protein")) s += 8;
+            if (food.tags.includes("gain")) s += 3;
+          }
+
+          // Goal rules
+          if (goal === "gain") {
+            s += food.cal > 350 ? 6 : 0;
+            if (food.tags.includes("gain")) s += 8;
+            if (food.tags.includes("protein")) s += 5;
+          }
+          if (goal === "loss") {
+            s += food.cal < 250 ? 6 : 0;
+            if (food.tags.includes("loss")) s += 8;
+            if (food.tags.includes("light")) s += 4;
+          }
+          if (goal === "healthy") {
+            if (food.tags.includes("balanced")) s += 6;
+            if (food.tags.includes("vitamins")) s += 4;
+          }
+
+          // Medical conditions
+          if (conditions.includes("anaemia") && food.tags.includes("iron"))
+            s += 10;
+          if (conditions.includes("anaemia") && food.tags.includes("anaemia"))
+            s += 10;
+          if (
+            conditions.includes("constipation") &&
+            food.tags.includes("light")
+          )
+            s += 6;
+          if (conditions.includes("diabetes") && food.cal > 380) s -= 8;
+
+          // Activity
+          if (activity === "high" && food.tags.includes("protein")) s += 5;
+          if (activity === "high" && food.tags.includes("energy")) s += 5;
+          if (activity === "low" && food.cal > 400) s -= 4;
+
+          return s;
+        }
+
+        const result = { breakfast: [], lunch: [], dinner: [], snack: [] };
+        ["breakfast", "lunch", "dinner", "snack"].forEach((meal) => {
+          const candidates = FOODS.filter((f) => f.meal === meal)
+            .map((f) => ({ ...f, score: score(f) }))
+            .filter((f) => f.score > -9999)
+            .sort((a, b) => b.score - a.score);
+          result[meal] = candidates.slice(0, 3);
+        });
+        return result;
+      }
+
+      // ──────────────────────────────────────────────
+      //  WATER REQUIREMENT
+      // ──────────────────────────────────────────────
+      function getWaterGlasses() {
+        if (!profile) return 6;
+        const { age, activity } = profile;
+        let glasses = age < 7 ? 5 : age < 13 ? 7 : 8;
+        if (activity === "high") glasses += 1;
+        return glasses;
+      }
+
+      // ──────────────────────────────────────────────
+      //  RENDER RECOMMENDATIONS
+      // ──────────────────────────────────────────────
+      function renderReco() {
+        const el = document.getElementById("reco-content");
+        if (!profile) {
+          el.innerHTML = `<div class="empty-state"><div class="es-icon">🍽️</div><div class="es-title">No Profile Yet</div><div class="es-text">Please fill in the child's profile first.</div></div>`;
+          return;
+        }
+
+        const reco = getRecommendations();
+        const waterGlasses = getWaterGlasses();
+        const avatar =
+          profile.gender === "girl"
+            ? "👧"
+            : profile.gender === "boy"
+              ? "👦"
+              : "🧒";
+
+        const tipMap = {
+          gain: "💡 For weight gain, ensure calorie-dense meals with healthy fats (ghee, nuts, dairy) and eat frequently.",
+          loss: "💡 For weight management, focus on fibre-rich foods, avoid fried snacks, and keep portions moderate.",
+          healthy:
+            "💡 A balanced diet with all food groups ensures optimal growth and development.",
+        };
+
+        let html = `
+    <div style="padding-top:6px;">
+      <div class="section-title">Meal Plan 🍽️</div>
+      <div class="section-sub">${today}</div>
+
+      <div class="profile-badge">
+        <div class="profile-avatar">${avatar}</div>
+        <div>
+          <div class="profile-name">${profile.name}</div>
+          <div class="profile-meta">Age ${profile.age} · ${profile.weight ? profile.weight + "kg · " : ""}${profile.diet === "veg" ? "🌿 Vegetarian" : profile.diet === "egg" ? "🥚 Eggetarian" : "🍗 Non-Vegetarian"}</div>
+          <div class="profile-tags">
+            <span class="p-tag">${profile.goal === "gain" ? "📈 Weight Gain" : profile.goal === "loss" ? "📉 Weight Loss" : "💚 Healthy"}</span>
+            <span class="p-tag blue">${profile.activity === "high" ? "⚽ Active" : profile.activity === "low" ? "🛋️ Low Activity" : "🚶 Moderate"}</span>
+            ${profile.allergies.length ? `<span class="p-tag red">⚠️ ${profile.allergies.length} allergy</span>` : ""}
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-banner">
+        <span class="tip-icon">💡</span>
+        <span>${tipMap[profile.goal] || tipMap["healthy"]}</span>
+      </div>
+  `;
+
+        // Water card
+        html += `
+    <div class="water-card">
+      <div class="water-icon">💧</div>
+      <div class="water-text" style="flex:1;">
+        <div class="wt">Daily Water Goal: ${waterGlasses} glasses</div>
+        <div class="ws">Tap glasses to track intake throughout the day</div>
+        <div class="water-glasses" id="water-glasses">
+          ${Array.from({ length: waterGlasses }, (_, i) => `<span class="glass ${i < waterCount ? "filled" : ""}" onclick="toggleGlass(${i})" title="Glass ${i + 1}">🥤</span>`).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+        // Meals
+        const meals = [
+          {
+            key: "breakfast",
+            label: "Breakfast",
+            icon: "🌅",
+            iconClass: "breakfast",
+            time: "7:00 – 8:30 AM",
+          },
+          {
+            key: "lunch",
+            label: "Lunch",
+            icon: "☀️",
+            iconClass: "lunch",
+            time: "12:00 – 1:30 PM",
+          },
+          {
+            key: "dinner",
+            label: "Dinner",
+            icon: "🌙",
+            iconClass: "dinner",
+            time: "7:00 – 8:30 PM",
+          },
+          {
+            key: "snack",
+            label: "Snacks",
+            icon: "🍎",
+            iconClass: "snack",
+            time: "10 AM & 4 PM",
+          },
+        ];
+
+        meals.forEach((m) => {
+          const foods = reco[m.key];
+          html += `<div class="card meal-section">
+      <div class="meal-header">
+        <div class="meal-icon ${m.iconClass}">${m.icon}</div>
+        <div>
+          <div class="meal-label">${m.label}</div>
+          <div class="meal-time">⏰ ${m.time}</div>
+        </div>
+      </div>
+      <div class="food-options">`;
+
+          if (foods.length === 0) {
+            html += `<div style="text-align:center; padding:12px; color:var(--muted); font-size:0.85rem;">No options match current filters</div>`;
+          } else {
+            foods.forEach((f) => {
+              const isVeg = f.tags.includes("veg") && !f.tags.includes("egg");
+              const isEgg = f.tags.includes("egg");
+              const logged = foodLog[f.id];
+              html += `<div class="food-option" id="foodcard-${f.id}">
+          <div>
+            <div class="food-name">${f.name}</div>
+            <div class="food-meta">${f.desc}</div>
+            <div class="food-badges" style="margin-top:5px;">
+              ${isVeg ? '<span class="badge badge-veg">🟢 Veg</span>' : isEgg ? '<span class="badge badge-protein">🥚 Egg</span>' : '<span class="badge badge-nonveg">🔴 Non-veg</span>'}
+              <span class="badge badge-cal">~${f.cal} kcal</span>
+              ${f.protein >= 8 ? `<span class="badge badge-protein">💪 ${f.protein}g protein</span>` : ""}
+            </div>
+          </div>
+        </div>`;
+            });
+          }
+
+          html += `</div></div>`;
+        });
+
+        html += `</div>`;
+        el.innerHTML = html;
+      }
+
+      function toggleGlass(i) {
+        waterCount = i < waterCount ? i : i + 1;
+        const glasses = document.querySelectorAll(".glass");
+        glasses.forEach((g, idx) => {
+          g.classList.toggle("filled", idx < waterCount);
+        });
+        const target = getWaterGlasses();
+        if (waterCount === target)
+          showToast("🎉 Water goal reached! Great job!");
+      }
+
+      // ──────────────────────────────────────────────
+      //  RENDER FOOD LOG
+      // ──────────────────────────────────────────────
+      function renderLog() {
+        const el = document.getElementById("log-content");
+        if (!profile) {
+          el.innerHTML = `<div class="empty-state"><div class="es-icon">📋</div><div class="es-title">No Profile Yet</div><div class="es-text">Save a profile first to start logging meals.</div></div>`;
+          return;
+        }
+
+        const reco = getRecommendations();
+        let ateCount = 0,
+          skipCount = 0,
+          likeCount = 0;
+        Object.values(foodLog).forEach((l) => {
+          if (l.status === "ate") ateCount++;
+          if (l.status === "skip") skipCount++;
+          if (l.like === "like") likeCount++;
+        });
+
+        const totalRecos = Object.values(reco).reduce(
+          (a, b) => a + b.length,
+          0,
+        );
+
+        let html = `
+    <div style="padding-top:6px;">
+      <div class="section-title">Food Log 📋</div>
+      <div class="section-sub">Track what ${profile.name} ate today</div>
+
+      <div class="card">
+        <div class="card-title">📊 Today's Summary</div>
+        <div class="log-date">${today}</div>
+        <div class="summary-grid">
+          <div class="summary-box"><div class="summary-num green">${ateCount}</div><div class="summary-lbl">Foods Eaten</div></div>
+          <div class="summary-box"><div class="summary-num red">${skipCount}</div><div class="summary-lbl">Skipped</div></div>
+          <div class="summary-box"><div class="summary-num blue">${likeCount}</div><div class="summary-lbl">Liked 👍</div></div>
+          <div class="summary-box"><div class="summary-num orange">${totalRecos - ateCount - skipCount > 0 ? totalRecos - ateCount - skipCount : 0}</div><div class="summary-lbl">Not Logged</div></div>
+        </div>
+      </div>
+  `;
+
+        const meals = [
+          { key: "breakfast", label: "Breakfast 🌅" },
+          { key: "lunch", label: "Lunch ☀️" },
+          { key: "dinner", label: "Dinner 🌙" },
+          { key: "snack", label: "Snacks 🍎" },
+        ];
+
+        meals.forEach((m) => {
+          const foods = reco[m.key];
+          if (foods.length === 0) return;
+          html += `<div class="card">
+      <div class="card-title">${m.label}</div>`;
+          foods.forEach((f) => {
+            const logged = foodLog[f.id] || { status: null, like: null };
+            html += `<div class="log-item" id="log-${f.id}">
+        <div style="flex:1;">
+          <div class="log-item-name">${f.name}</div>
+          <div class="log-meal-tag">~${f.cal} kcal · ${f.protein}g protein</div>
+        </div>
+        <div class="log-actions">
+          <button class="btn btn-sm btn-ate ${logged.status === "ate" ? "active" : ""}" onclick="logFood(${f.id},'ate')">✅ Ate</button>
+          <button class="btn btn-sm btn-skip ${logged.status === "skip" ? "active" : ""}" onclick="logFood(${f.id},'skip')">⏭️ Skip</button>
+          <button class="btn btn-sm btn-like ${logged.like === "like" ? "active" : ""}" onclick="logLike(${f.id},'like')" title="Liked it">👍</button>
+          <button class="btn btn-sm btn-dislike ${logged.like === "dislike" ? "active" : ""}" onclick="logLike(${f.id},'dislike')" title="Didn't like">👎</button>
+        </div>
+      </div>`;
+          });
+          html += `</div>`;
+        });
+
+        // Motivational note
+        const pct =
+          totalRecos > 0 ? Math.round((ateCount / totalRecos) * 100) : 0;
+        let motivation = "";
+        if (pct === 0)
+          motivation = `🌟 Let's start tracking ${profile.name}'s meals for today!`;
+        else if (pct < 50)
+          motivation = `🚀 Good start! Keep going, log more meals to get the full picture.`;
+        else if (pct < 80)
+          motivation = `🎯 Over halfway! ${profile.name} is doing great today.`;
+        else
+          motivation = `🏆 Amazing! ${profile.name} is crushing their nutrition goals today!`;
+
+        html += `<div class="tip-banner" style="margin-top:4px;"><span class="tip-icon">🌟</span><span>${motivation}</span></div>`;
+        html += `</div>`;
+        el.innerHTML = html;
+      }
+
+      function logFood(foodId, status) {
+        if (!foodLog[foodId]) foodLog[foodId] = { status: null, like: null };
+        foodLog[foodId].status =
+          foodLog[foodId].status === status ? null : status;
+        showToast(
+          status === "ate" ? "✅ Marked as eaten!" : "⏭️ Marked as skipped",
+        );
+        renderLog();
+      }
+
+      function logLike(foodId, pref) {
+        if (!foodLog[foodId]) foodLog[foodId] = { status: null, like: null };
+        foodLog[foodId].like = foodLog[foodId].like === pref ? null : pref;
+        showToast(pref === "like" ? "👍 Liked!" : "👎 Noted!");
+        renderLog();
+      }
+
+      // ──────────────────────────────────────────────
+      //  TOAST
+      // ──────────────────────────────────────────────
+      let toastTimer;
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
+      }
+    </script>
+  </body>
+</html>
